@@ -17,7 +17,7 @@
         {
             Program.Hillclimber hillclimber = new();
 
-            hillclimber.Hillclimb(2500);
+            hillclimber.Hillclimb(2500); // Increase to get more chance to mutate
 
             Console.ReadLine();
         }
@@ -49,7 +49,7 @@
 
                 LeapfrogLogic.Task task = new();
 
-                for (int h = 0; h < 200; h++) // To get an average score
+                for (int h = 0; h < 200; h++) // To get an average score - increase to reduce randomness/luck
                 {
                     int button1Score = 10;
                     int button2Score = 20;
@@ -75,9 +75,17 @@
         }
         class Mutate
         {
-            public void RuinRecreate() // Random resetting?
+            public List<int> RuinRecreate(int numOfInstructions) // Random resetting?
             {
+                List<int> child = new();
+                Random rand = new();
 
+                for (int i = 0; i < numOfInstructions; i++)
+                {
+                    child.Add(rand.Next(0, 2));
+                }
+
+                return child;
             }
 
             public List<int> SessionReplace(int numOfInstructions, List<int> parent) // Swap mutation?
@@ -131,6 +139,8 @@
                 {
                     // Mutate
                     List<int> child_instructions = mutate.SessionReplace(parent_instructions.Count, parent_instructions);
+
+                    // List<int> child_instructions = mutate.RuinRecreate(parent_instructions.Count); Ruin recreate mutation
                     // Evaluate
                     double child_constraints = solution.FindConstraints(child_instructions);
 
@@ -146,7 +156,7 @@
                 }
 
                 Console.WriteLine(String.Join(", ", parent_instructions));
-                Console.WriteLine("Constraints: " + parent_constraints);
+                Console.WriteLine("Average: " + parent_constraints);
 
 
 
