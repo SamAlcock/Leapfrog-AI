@@ -11,65 +11,70 @@
            - Data saved to .csv - score, button pressed
            - Loops (multiple AI - to avoid a specific tactic?, multiple generations)
            - Make data into graph - should be a bell curve? Optimal score should be top of curve, extreme luck scores at the end */
+
+
         static void Main(string[] args)
         {
-            Hillclimber hillclimber = new();
+            Program.Hillclimber hillclimber = new();
 
             hillclimber.Hillclimb(2500);
 
             Console.ReadLine();
-
         }
+
         class Solution
         {
-            int numOfDirections = 5;
+            int numOfInputs = 2;
             int numOfInstructions = 1000;
 
-            public List<int> GenerateSolution() // Generate a random array of directions
+            public List<int> GenerateSolution() // Generate a random array of inputs
             {
                 List<int> instructions = new();
                 Random rand = new();
 
                 for (int i = 0; i < numOfInstructions; i++)
                 {
-                    instructions.Add(rand.Next(0, numOfDirections));
+                    instructions.Add(rand.Next(0, numOfInputs));
                 }
 
                 return instructions;
             }
-            public int FindConstraints(List<int> instructions)
+            public double FindConstraints(List<int> instructions)
             {
-                /*
-                 * - Loop through every item
-                 * - If direction is the same as previous (excluding staying still)
-                 * - Add 1 constraint
-                 * 
-                 * Stay still = 0, Forward = 1, Backward = 2, Left = 3, Right = 4
-                 * 
-                 * if 1 and 2, 3 and 4, 2 and 1, 4 and 3
-                 */
+                int maxTrials = 250;
+                
+                Program program = new Program();
 
-                int constraints = 0;
+                List<int> outputs = new List<int>();
 
-                for (int i = 0; i < numOfInstructions; i++)
+                LeapfrogLogic.Task task = new();
+
+                for (int h = 0; h < 200; h++) // To get an average score
                 {
-                    if (i != 0)
+                    int button1Score = 10;
+                    int button2Score = 20;
+                    int scoreTotal = 0;
+                    for (int i = 0; i < maxTrials; i++) // For every trial
                     {
-                        if (instructions[i] == 1 && instructions[i - 1] == 2 || instructions[i] == 2 && instructions[i - 1] == 1 || instructions[i] == 3 && instructions[i - 1] == 4 || instructions[i] == 4 && instructions[i - 1] == 3)
-                        {
-                            constraints++;
-                        }
-                    }
+                        int choice = instructions[i];
+                        int[] numbers = task.Leapfrog(choice, scoreTotal, button1Score, button2Score); // Get relevant numbers
 
+                        scoreTotal = numbers[0];
+                        button1Score = numbers[1];
+                        button2Score = numbers[2];
+                    }
+                    outputs.Add(scoreTotal);
                 }
-                // Console.WriteLine("There are " + constraints + " constraints");
-                return constraints;
+
+                double avg = task.CalculateAverage(outputs);
+
+                return avg;
             }
+            
+
         }
         class Mutate
         {
-
-
             public void RuinRecreate() // Random resetting?
             {
 
@@ -81,25 +86,29 @@
 
                 List<int> child = new List<int>(parent);
 
-                int temp;
-                int location = rand.Next(0, numOfInstructions);
-                int location2 = rand.Next(0, numOfInstructions);
-
-                while (location == location2)
+                for (int i = 0; i < 25; i++)
                 {
-                    location2 = rand.Next(0, numOfInstructions);
-                }
+                    int temp;
+                    int location = rand.Next(0, numOfInstructions);
+                    int location2 = rand.Next(0, numOfInstructions);
 
-                temp = location;
-                child[location] = child[location2];
-                child[location2] = child[temp];
+                    while (location == location2)
+                    {
+                        location2 = rand.Next(0, numOfInstructions);
+                    }
+
+                    temp = location;
+                    child[location] = child[location2];
+                    child[location2] = child[temp];
+                }
+                
 
                 return child;
             }
 
         }
 
-        class Hillclimber
+        public class Hillclimber
         {
             public void Hillclimb(int Niter)
             {
@@ -112,28 +121,28 @@
                 Solution solution = new();
                 Mutate mutate = new();
 
+                Console.WriteLine("Initialising...");
                 // Initialise random solution
                 List<int> parent_instructions = solution.GenerateSolution();
-                int parent_constraints = solution.FindConstraints(parent_instructions);
+                double parent_constraints = solution.FindConstraints(parent_instructions);
 
                 // Loop for Niter 
                 for (int i = 0; i < Niter; i++)
                 {
-                    // Console.WriteLine("Iteration: " + i);
-
                     // Mutate
                     List<int> child_instructions = mutate.SessionReplace(parent_instructions.Count, parent_instructions);
                     // Evaluate
-                    int child_constraints = solution.FindConstraints(child_instructions);
+                    double child_constraints = solution.FindConstraints(child_instructions);
 
                     // Pick the next parent
-                    if (child_constraints < parent_constraints)
+                    if (child_constraints > parent_constraints)
                     {
                         parent_instructions = child_instructions.ToList();
                         parent_constraints = child_constraints;
+
+                        Console.WriteLine("New best average: " + parent_constraints);
                     }
 
-                    Console.WriteLine("There are " + parent_constraints + " constraints");
                 }
 
                 Console.WriteLine(String.Join(", ", parent_instructions));

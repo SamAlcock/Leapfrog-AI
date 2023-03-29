@@ -3,39 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 
 namespace Leapfrog_AI
 {
     internal class LeapfrogLogic
     {
-        static void Main(string[] args)
-        {
-            int maxTrials = 250;
-            int button1Score = 10;
-            int button2Score = 20;
-            int scoreTotal = 0;
-            int choice = 0;
-            Program program = new Program();
-
-
-            int[] inputs = program.choices;
-
-            Task task = new();
-
-
-            for (int i = 0; i < maxTrials; i++)
-            {
-                choice = inputs[i];
-                int[] numbers = task.Leapfrog(choice, scoreTotal, button1Score, button2Score);
-
-                scoreTotal = numbers[0];
-                button1Score = numbers[1];
-                button2Score = numbers[2];
-            }
-
-        }
-
-        class Task
+        public class Task
         {
             public int[] Leapfrog(int choice, int score, int button1Score, int button2Score)
             {
@@ -59,13 +33,13 @@ namespace Leapfrog_AI
 
             Tuple<int, int> CheckForIncrease(int choice, int button1Score, int button2Score)
             {
-                Random random = new Random();
+                Random random = new();
                 int prob = 1; // Probability of buttons jumping
                 int randy = random.Next(8);
 
                 if (randy < prob)
                 {
-                    if (choice == 0 && button2Score < button1Score) 
+                    if (choice == 0 && button2Score < button1Score) // if button 1 pressed, and its score is higher than button 2
                     {
                         button2Score += 20;
                     }
@@ -77,6 +51,14 @@ namespace Leapfrog_AI
 
                 return Tuple.Create(button1Score, button2Score);
             }
+
+            public double CalculateAverage(List<int> scores)
+            {
+                double avg = scores.Average(); // Calculates average of list
+
+                return avg;
+            }
+
         }
 
         
