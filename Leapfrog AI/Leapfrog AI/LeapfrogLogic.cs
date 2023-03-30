@@ -11,7 +11,7 @@ namespace Leapfrog_AI
     {
         public class Task
         {
-            public int[] Leapfrog(int choice, int score, int button1Score, int button2Score)
+            public Tuple<int[], List<int>> Leapfrog(int choice, int score, int button1Score, int button2Score, int prevChoice, List<int> exploreExploit)
             {
                 if (choice == 0)
                 {
@@ -21,14 +21,14 @@ namespace Leapfrog_AI
                 {
                     score += button2Score;
                 }
-
+                exploreExploit = DetermineChoice(choice, prevChoice, exploreExploit);
                 Tuple<int, int> buttonScores = CheckForIncrease(choice, button1Score, button2Score);
                 button1Score = buttonScores.Item1;
                 button2Score = buttonScores.Item2;
 
-                int[] numbers = {score, button1Score, button2Score};
+                int[] numbers = {score, button1Score, button2Score, choice};
 
-                return numbers;
+                return Tuple.Create(numbers, exploreExploit);
             }
 
             Tuple<int, int> CheckForIncrease(int choice, int button1Score, int button2Score)
@@ -50,6 +50,28 @@ namespace Leapfrog_AI
                 }
 
                 return Tuple.Create(button1Score, button2Score);
+            }
+
+            List<int> DetermineChoice(int choice, int prevChoice, List<int> exploreExploit)
+            {
+                /* To figure out whether choice was explore or exploit:
+                 * High button + stay = exploit
+                 * High button + leave = explore
+                 * Low button + stay = exploit
+                 * Low button + leave = explore
+                 */
+
+                if (choice == prevChoice)
+                {
+                    exploreExploit.Add(0);
+                }
+                else if (choice != prevChoice)
+                {
+                    exploreExploit.Add(1);
+                }
+                
+
+                return exploreExploit;
             }
 
             public double CalculateAverage(List<int> scores)

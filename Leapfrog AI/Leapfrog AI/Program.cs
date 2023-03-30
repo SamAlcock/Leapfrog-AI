@@ -17,7 +17,7 @@
         {
             Program.Hillclimber hillclimber = new();
 
-            hillclimber.Hillclimb(2500); // Increase to get more chance to mutate
+            hillclimber.Hillclimb(50000); // Increase to get more chance to mutate
 
             Console.ReadLine();
         }
@@ -25,7 +25,7 @@
         class Solution
         {
             int numOfInputs = 2;
-            int numOfInstructions = 1000;
+            int numOfInstructions = 250;
 
             public List<int> GenerateSolution() // Generate a random array of inputs
             {
@@ -39,7 +39,7 @@
 
                 return instructions;
             }
-            public double FindConstraints(List<int> instructions)
+            public double FindConstraints(List<int> instructions, List<int> exploreExploit)
             {
                 int maxTrials = 250;
                 
@@ -49,23 +49,29 @@
 
                 LeapfrogLogic.Task task = new();
 
-                for (int h = 0; h < 200; h++) // To get an average score - increase to reduce randomness/luck
+                
+
+                for (int h = 0; h < 25; h++) // To get an average score - increase to reduce randomness/luck
                 {
+                    exploreExploit.Clear();
                     int button1Score = 10;
                     int button2Score = 20;
                     int scoreTotal = 0;
+                    int prevChoice = 2;
                     for (int i = 0; i < maxTrials; i++) // For every trial
                     {
                         int choice = instructions[i];
-                        int[] numbers = task.Leapfrog(choice, scoreTotal, button1Score, button2Score); // Get relevant numbers
+                        var items = task.Leapfrog(choice, scoreTotal, button1Score, button2Score, prevChoice, exploreExploit); // Get relevant numbers
+                        int[] numbers = items.Item1;
+                        exploreExploit = items.Item2;
 
                         scoreTotal = numbers[0];
                         button1Score = numbers[1];
                         button2Score = numbers[2];
+                        prevChoice = numbers[3];
                     }
                     outputs.Add(scoreTotal);
                 }
-
                 double avg = task.CalculateAverage(outputs);
 
                 return avg;
@@ -94,7 +100,7 @@
 
                 List<int> child = new List<int>(parent);
 
-                for (int i = 0; i < 25; i++)
+                for (int i = 0; i < 50; i++) // May need to specify that it has to be a different swap
                 {
                     int temp;
                     int location = rand.Next(0, numOfInstructions);
@@ -132,17 +138,20 @@
                 Console.WriteLine("Initialising...");
                 // Initialise random solution
                 List<int> parent_instructions = solution.GenerateSolution();
-                double parent_constraints = solution.FindConstraints(parent_instructions);
+                List<int> exploreExploit = new();
+                List<int> childExploreExploit = new();
+
+                double parent_constraints = solution.FindConstraints(parent_instructions, exploreExploit);
 
                 // Loop for Niter 
                 for (int i = 0; i < Niter; i++)
                 {
                     // Mutate
                     List<int> child_instructions = mutate.SessionReplace(parent_instructions.Count, parent_instructions);
-
                     // List<int> child_instructions = mutate.RuinRecreate(parent_instructions.Count); Ruin recreate mutation
+
                     // Evaluate
-                    double child_constraints = solution.FindConstraints(child_instructions);
+                    double child_constraints = solution.FindConstraints(child_instructions, childExploreExploit);
 
                     // Pick the next parent
                     if (child_constraints > parent_constraints)
@@ -150,12 +159,13 @@
                         parent_instructions = child_instructions.ToList();
                         parent_constraints = child_constraints;
 
-                        Console.WriteLine("New best average: " + parent_constraints);
+                        Console.WriteLine("Generation: " + i + ", New best average: " + parent_constraints);
                     }
 
                 }
 
-                Console.WriteLine(String.Join(", ", parent_instructions));
+                Console.WriteLine("Inputs: " + String.Join(", ", parent_instructions));
+                Console.WriteLine("Decisions: " + String.Join(", ", exploreExploit) + "\n");
                 Console.WriteLine("Average: " + parent_constraints);
 
 
