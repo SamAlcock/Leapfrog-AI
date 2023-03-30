@@ -61,11 +61,11 @@ namespace Leapfrog_AI
                  * Low button + leave = explore
                  */
 
-                if (choice == prevChoice)
+                if (choice == prevChoice) // exploit
                 {
                     exploreExploit.Add(0);
                 }
-                else if (choice != prevChoice)
+                else if (choice != prevChoice) // explore
                 {
                     exploreExploit.Add(1);
                 }

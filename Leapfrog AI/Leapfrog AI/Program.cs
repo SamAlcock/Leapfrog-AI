@@ -17,7 +17,7 @@
         {
             Program.Hillclimber hillclimber = new();
 
-            hillclimber.Hillclimb(50000); // Increase to get more chance to mutate
+            hillclimber.Hillclimb(300000); // Increase to get more chance to mutate
 
             Console.ReadLine();
         }
@@ -100,20 +100,18 @@
 
                 List<int> child = new List<int>(parent);
 
-                for (int i = 0; i < 50; i++) // May need to specify that it has to be a different swap
+                for (int i = 0; i < 1; i++) // May need to specify that it has to be a different swap
                 {
-                    int temp;
-                    int location = rand.Next(0, numOfInstructions);
-                    int location2 = rand.Next(0, numOfInstructions);
+                    int location = rand.Next(0, child.Count);
 
-                    while (location == location2)
+                    if (child[location] == 0)
                     {
-                        location2 = rand.Next(0, numOfInstructions);
+                        child[location] = 1;
                     }
-
-                    temp = location;
-                    child[location] = child[location2];
-                    child[location2] = child[temp];
+                    else
+                    {
+                        child[location] = 0;
+                    }
                 }
                 
 
