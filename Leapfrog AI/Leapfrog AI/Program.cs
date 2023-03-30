@@ -17,7 +17,7 @@
         {
             Program.Hillclimber hillclimber = new();
 
-            hillclimber.Hillclimb(300000); // Increase to get more chance to mutate
+            hillclimber.Hillclimb(200000); // Increase to get more chance to mutate
 
             Console.ReadLine();
         }
@@ -166,9 +166,30 @@
                 Console.WriteLine("Decisions: " + String.Join(", ", exploreExploit) + "\n");
                 Console.WriteLine("Average: " + parent_constraints);
 
+                OutputExploreExploit(exploreExploit);
 
 
 
+
+            }
+
+            void OutputExploreExploit(List<int> exploreExploit)
+            {
+                int explore = 0;
+                int exploit = 0;
+
+                for (int i = 0; i < exploreExploit.Count; i++)
+                {
+                    if (exploreExploit[i] == 0)
+                    {
+                        exploit++;
+                    }
+                    else
+                    {
+                        explore++;
+                    }
+                }
+                Console.WriteLine("Explore: " + explore + ", Exploit: " + exploit);
             }
         }
 
