@@ -1,4 +1,6 @@
-﻿namespace Leapfrog_AI
+﻿using System.Linq;
+
+namespace Leapfrog_AI
 {
     class Program
     {
@@ -17,7 +19,7 @@
         {
             Program.Hillclimber hillclimber = new();
 
-            hillclimber.Hillclimb(200000); // Increase to get more chance to mutate
+            hillclimber.Hillclimb(500000); // Increase to get more chance to mutate
 
             Console.ReadLine();
         }
@@ -167,6 +169,13 @@
                 Console.WriteLine("Average: " + parent_constraints);
 
                 OutputExploreExploit(exploreExploit);
+
+                CSVManager csvManager = new();
+
+                /*
+                csvManager.Data = new();
+                csvManager.Data.Add(Niter);
+                */
 
 
 
